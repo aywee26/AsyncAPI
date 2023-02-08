@@ -1,4 +1,5 @@
 using AsyncAPI.Data;
+using AsyncAPI.DTOs;
 using AsyncAPI.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -37,5 +38,29 @@ app.MapPost("/api/v1/products", async (AppDbContext context, ListingRequest list
         listingRequest);
 });
 
+// Status Endpoint
+app.MapGet("api/v1/productstatus/{requestId}", (AppDbContext context, string requestId) =>
+{
+    var listingRequest = context.ListingRequests
+        .FirstOrDefault(lr => lr.RequestId == requestId);
+
+    if (listingRequest is null)
+        return Results.NotFound();
+
+    var listingStatus = new ListingStatus
+    {
+        RequestStatus = listingRequest.RequestStatus,
+        ResourceURL = string.Empty
+    };
+
+    if (listingRequest.RequestStatus!.ToUpper() == "COMPLETE")
+    {
+        listingStatus.ResourceURL = $"api/v1/products/{Guid.NewGuid().ToString()}";
+        return Results.Ok(listingStatus);
+    }
+
+    listingStatus.EstimatedCompletionTime = "2023-02-08:19:30:00";
+    return Results.Ok(listingStatus);
+});
 
 app.Run();
