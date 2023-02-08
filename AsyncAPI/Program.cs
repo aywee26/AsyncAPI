@@ -56,11 +56,18 @@ app.MapGet("api/v1/productstatus/{requestId}", (AppDbContext context, string req
     if (listingRequest.RequestStatus!.ToUpper() == "COMPLETE")
     {
         listingStatus.ResourceURL = $"api/v1/products/{Guid.NewGuid().ToString()}";
-        return Results.Ok(listingStatus);
+        //return Results.Ok(listingStatus);
+        return Results.Redirect($"~/{listingStatus.ResourceURL}");
     }
 
     listingStatus.EstimatedCompletionTime = "2023-02-08:19:30:00";
     return Results.Ok(listingStatus);
+});
+
+// Final Endpoint
+app.MapGet("api/v1/products/{requestId}", (string requestId) =>
+{
+    return Results.Ok("This is where the final result is passed.");
 });
 
 app.Run();
